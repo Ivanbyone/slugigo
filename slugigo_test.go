@@ -60,3 +60,21 @@ func TestLowercase(t *testing.T) {
 		}
 	}
 }
+
+func TestMaxLength(t *testing.T) {
+	cases := []struct {
+		provided string
+		expected string
+	}{
+		{"Hello, Slug!", "Hello-Sl"},
+	}
+
+	for _, c := range cases {
+		actual := Slug(c.provided).
+			MaxLength(8).
+			Build()
+		if actual != c.expected {
+			t.Errorf("Test failed! Expected: %s, actual: %s", c.expected, actual)
+		}
+	}
+}

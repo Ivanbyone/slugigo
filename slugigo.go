@@ -6,12 +6,15 @@ import (
 
 const (
 	flagLowercase uint8 = 1 << iota
+	flagMaxLength
 )
 
+// Slugigo
 type Slugigo struct {
-	text      []byte
 	flags     uint8
+	max       int
 	separator string
+	text      []byte
 }
 
 // Slug returns a new Slugigo instance initialized with the provided string.
@@ -26,6 +29,13 @@ func Slug(text string) Slugigo {
 // Lowercase
 func (s Slugigo) Lowercase() Slugigo {
 	s.flags |= flagLowercase
+	return s
+}
+
+// MaxLength
+func (s Slugigo) MaxLength(length int) Slugigo {
+	s.max = length
+	s.flags |= flagMaxLength
 	return s
 }
 
@@ -45,9 +55,14 @@ func (s Slugigo) process(buf []byte) []byte {
 
 	// Check flags
 	hasLowercaseFlag := s.flags&flagLowercase != 0
+	hasMaxLengthFlag := s.flags&flagMaxLength != 0
 
 	for i := range buf {
 		char := buf[i]
+
+		if hasMaxLengthFlag && w >= s.max {
+			break
+		}
 
 		if char == ' ' || char == '\t' || char == '\n' || char == '\r' {
 			if !space {
@@ -58,8 +73,8 @@ func (s Slugigo) process(buf []byte) []byte {
 			continue
 		}
 
-		if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || (char >= '0' && char <= '9') ||
-			char == '-' || char == '_' || char == '.' {
+		if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') ||
+			(char >= '0' && char <= '9') || char == '-' || char == '_' || char == '.' {
 
 			if hasLowercaseFlag && char >= 'A' && char <= 'Z' {
 				char += 32
