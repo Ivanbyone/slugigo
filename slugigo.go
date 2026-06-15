@@ -5,8 +5,9 @@ import (
 )
 
 const (
-	flagLowercase uint8 = 1 << iota
+	flagNoLowercase uint8 = 1 << iota
 	flagMaxLength
+	flagSaveLeadingAndTrailingDash
 )
 
 // Slugigo
@@ -27,8 +28,8 @@ func Slug(text string) Slugigo {
 }
 
 // Lowercase
-func (s Slugigo) Lowercase() Slugigo {
-	s.flags |= flagLowercase
+func (s Slugigo) NoLowercase() Slugigo {
+	s.flags |= flagNoLowercase
 	return s
 }
 
@@ -36,6 +37,11 @@ func (s Slugigo) Lowercase() Slugigo {
 func (s Slugigo) MaxLength(length int) Slugigo {
 	s.max = length
 	s.flags |= flagMaxLength
+	return s
+}
+
+func (s Slugigo) SaveLeadingAndTrailingDash() Slugigo {
+	s.flags |= flagSaveLeadingAndTrailingDash
 	return s
 }
 
@@ -54,7 +60,7 @@ func (s Slugigo) process(buf []byte) []byte {
 	space := false
 
 	// Check flags
-	hasLowercaseFlag := s.flags&flagLowercase != 0
+	hasNoLowercaseFlag := s.flags&flagNoLowercase != 0
 	hasMaxLengthFlag := s.flags&flagMaxLength != 0
 
 	for i := range buf {
@@ -76,7 +82,7 @@ func (s Slugigo) process(buf []byte) []byte {
 		if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') ||
 			(char >= '0' && char <= '9') || char == '-' || char == '_' || char == '.' {
 
-			if hasLowercaseFlag && char >= 'A' && char <= 'Z' {
+			if !hasNoLowercaseFlag && char >= 'A' && char <= 'Z' {
 				char += 32
 			}
 
@@ -87,6 +93,20 @@ func (s Slugigo) process(buf []byte) []byte {
 	}
 
 	return buf[:w]
+}
+
+func (s Slugigo) removeLeadingAndTrailingDash(buf []byte) []byte {
+	hasSaveLeadingAndTrailingDashFlag := s.flags&flagSaveLeadingAndTrailingDash != 0
+	sep := s.separator[0]
+
+	for !hasSaveLeadingAndTrailingDashFlag && len(buf) > 0 && buf[0] == sep {
+		buf = buf[1:]
+	}
+	for !hasSaveLeadingAndTrailingDashFlag && len(buf) > 0 && buf[len(buf)-1] == sep {
+		buf = buf[:len(buf)-1]
+	}
+
+	return buf
 }
 
 // trim
@@ -100,5 +120,7 @@ func (s Slugigo) Build() string {
 	buffer := s.trim(s.text)
 	// 2. Remove Special Symbols
 	buffer = s.process(buffer)
+	// 3. Process leading and trailing dashes
+	buffer = s.removeLeadingAndTrailingDash(buffer)
 	return string(buffer)
 }
