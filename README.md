@@ -3,7 +3,7 @@
 <p align="center">Fast, low-alloc Go slug generator with an elegant Fluent API.</p>
 
 <p align="center">
-    <a href="https://github.com/ivanbyone/slugigo/releases"><img src="https://img.shields.io/github/v/release/ivanbyone/slugigo?logo=github&sort=semver)" alt="GH Release"></a>
+    <a href="https://github.com/ivanbyone/slugigo/releases"><img src="https://img.shields.io/github/v/release/ivanbyone/slugigo?logo=github&sort=semver" alt="GH Release"></a>
     <a href="https://github.com/ivanbyone/slugigo/actions/workflows/slugigo.yml"><img alt="Slugigo CI Status" src="https://img.shields.io/github/actions/workflow/status/ivanbyone/slugigo/slugigo.yml?label=CI&logo=GitHub"></a>
     <a href="https://github.com/ivanbyone/slugigo/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-orange.svg" alt="Slugigo License"></a>
     <a href="https://pkg.go.dev/github.com/ivanbyone/slugigo"><img src="https://pkg.go.dev/badge/github.com/ivanbyone/slugigo.svg" alt="Go documentation"></a>
