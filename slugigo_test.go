@@ -8,12 +8,12 @@ func TestDefaultSlugCreation(t *testing.T) {
 		expected string
 	}{
 		{"", ""},
-		{" helloSlug", "helloSlug"},
+		{" hello", "hello"},
 		{"hello slug.   ", "hello-slug."},
-		{"   Hello, Slugigo!      ", "Hello-Slugigo"},
+		{"   Hello, Slugigo!      ", "hello-slugigo"},
 		{"this is a text for slug", "this-is-a-text-for-slug"},
-		{"this-is a text._For slug!,", "this-is-a-text._For-slug"},
-		{".  this-is a text._For slug!,   ?", ".-this-is-a-text._For-slug"},
+		{"this-is a text._For slug!,", "this-is-a-text._for-slug"},
+		{".  this-is a text._For slug!,   ?", ".-this-is-a-text._for-slug"},
 	}
 
 	for _, c := range cases {
@@ -30,7 +30,7 @@ func TestCustomSeparator(t *testing.T) {
 		provided string
 		expected string
 	}{
-		{"Hello, Slug!", "Hello+Slug"},
+		{"Hello, Slug!", "hello+slug"},
 	}
 
 	for _, c := range cases {
@@ -43,17 +43,17 @@ func TestCustomSeparator(t *testing.T) {
 	}
 }
 
-func TestLowercase(t *testing.T) {
+func TestNoLowercase(t *testing.T) {
 	cases := []struct {
 		provided string
 		expected string
 	}{
-		{"Hello, Slug!", "hello-slug"},
+		{"Hello, Slug!", "Hello-Slug"},
 	}
 
 	for _, c := range cases {
 		actual := Slug(c.provided).
-			Lowercase().
+			NoLowercase().
 			Build()
 		if actual != c.expected {
 			t.Errorf("Test failed! Expected: %s, actual: %s", c.expected, actual)
@@ -66,7 +66,7 @@ func TestMaxLength(t *testing.T) {
 		provided string
 		expected string
 	}{
-		{"Hello, Slug!", "Hello-Sl"},
+		{"Hello, Slug!", "hello-sl"},
 	}
 
 	for _, c := range cases {
@@ -84,7 +84,7 @@ func TestRemoveLeadingAndTrailingDashes(t *testing.T) {
 		provided string
 		expected string
 	}{
-		{"---Hello Slug---", "---Hello-Slug---"},
+		{"---Hello Slug---", "---hello-slug---"},
 	}
 
 	for _, c := range cases {

@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	flagLowercase uint8 = 1 << iota
+	flagNoLowercase uint8 = 1 << iota
 	flagMaxLength
 	flagSaveLeadingAndTrailingDash
 )
@@ -28,8 +28,8 @@ func Slug(text string) Slugigo {
 }
 
 // Lowercase
-func (s Slugigo) Lowercase() Slugigo {
-	s.flags |= flagLowercase
+func (s Slugigo) NoLowercase() Slugigo {
+	s.flags |= flagNoLowercase
 	return s
 }
 
@@ -60,7 +60,7 @@ func (s Slugigo) process(buf []byte) []byte {
 	space := false
 
 	// Check flags
-	hasLowercaseFlag := s.flags&flagLowercase != 0
+	hasNoLowercaseFlag := s.flags&flagNoLowercase != 0
 	hasMaxLengthFlag := s.flags&flagMaxLength != 0
 
 	for i := range buf {
@@ -82,7 +82,7 @@ func (s Slugigo) process(buf []byte) []byte {
 		if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') ||
 			(char >= '0' && char <= '9') || char == '-' || char == '_' || char == '.' {
 
-			if hasLowercaseFlag && char >= 'A' && char <= 'Z' {
+			if !hasNoLowercaseFlag && char >= 'A' && char <= 'Z' {
 				char += 32
 			}
 
