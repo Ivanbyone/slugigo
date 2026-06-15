@@ -4,8 +4,13 @@ import (
 	"bytes"
 )
 
+const (
+	flagLowercase uint8 = 1 << iota
+)
+
 type Slugigo struct {
 	text      []byte
+	flags     uint8
 	separator string
 }
 
@@ -18,19 +23,28 @@ func Slug(text string) Slugigo {
 	return Slugigo{text: b, separator: "-"}
 }
 
+// Lowercase
+func (s Slugigo) Lowercase() Slugigo {
+	s.flags |= flagLowercase
+	return s
+}
+
 // Separator
 func (s Slugigo) Separator(sep string) Slugigo {
 	s.separator = sep
 	return s
 }
 
-// clean
+// process
 //
 // Allowed pattern: `[^a-zA-Z0-9\s\-_.]`
-func (s Slugigo) clean(buf []byte) []byte {
+func (s Slugigo) process(buf []byte) []byte {
 	w := 0
 	sep := s.separator[0]
 	space := false
+
+	// Check flags
+	hasLowercaseFlag := s.flags&flagLowercase != 0
 
 	for i := range buf {
 		char := buf[i]
@@ -41,10 +55,16 @@ func (s Slugigo) clean(buf []byte) []byte {
 				w++
 				space = true
 			}
+			continue
 		}
 
 		if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || (char >= '0' && char <= '9') ||
 			char == '-' || char == '_' || char == '.' {
+
+			if hasLowercaseFlag && char >= 'A' && char <= 'Z' {
+				char += 32
+			}
+
 			buf[w] = char
 			w++
 			space = false
@@ -63,9 +83,7 @@ func (s Slugigo) trim(b []byte) []byte {
 func (s Slugigo) Build() string {
 	// 1. Trim (mandatory operation)
 	buffer := s.trim(s.text)
-
 	// 2. Remove Special Symbols
-	buffer = s.clean(buffer)
-
+	buffer = s.process(buffer)
 	return string(buffer)
 }
