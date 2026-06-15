@@ -13,7 +13,7 @@ func TestDefaultSlugCreation(t *testing.T) {
 		{"   Hello, Slugigo!      ", "Hello-Slugigo"},
 		{"this is a text for slug", "this-is-a-text-for-slug"},
 		{"this-is a text._For slug!,", "this-is-a-text._For-slug"},
-		{".  this-is a text._For slug!,   ?", ".-this-is-a-text._For-slug-"},
+		{".  this-is a text._For slug!,   ?", ".-this-is-a-text._For-slug"},
 	}
 
 	for _, c := range cases {
@@ -72,6 +72,24 @@ func TestMaxLength(t *testing.T) {
 	for _, c := range cases {
 		actual := Slug(c.provided).
 			MaxLength(8).
+			Build()
+		if actual != c.expected {
+			t.Errorf("Test failed! Expected: %s, actual: %s", c.expected, actual)
+		}
+	}
+}
+
+func TestRemoveLeadingAndTrailingDashes(t *testing.T) {
+	cases := []struct {
+		provided string
+		expected string
+	}{
+		{"---Hello Slug---", "---Hello-Slug---"},
+	}
+
+	for _, c := range cases {
+		actual := Slug(c.provided).
+			SaveLeadingAndTrailingDash().
 			Build()
 		if actual != c.expected {
 			t.Errorf("Test failed! Expected: %s, actual: %s", c.expected, actual)

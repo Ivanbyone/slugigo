@@ -7,6 +7,7 @@ import (
 const (
 	flagLowercase uint8 = 1 << iota
 	flagMaxLength
+	flagSaveLeadingAndTrailingDash
 )
 
 // Slugigo
@@ -36,6 +37,11 @@ func (s Slugigo) Lowercase() Slugigo {
 func (s Slugigo) MaxLength(length int) Slugigo {
 	s.max = length
 	s.flags |= flagMaxLength
+	return s
+}
+
+func (s Slugigo) SaveLeadingAndTrailingDash() Slugigo {
+	s.flags |= flagSaveLeadingAndTrailingDash
 	return s
 }
 
@@ -89,6 +95,20 @@ func (s Slugigo) process(buf []byte) []byte {
 	return buf[:w]
 }
 
+func (s Slugigo) removeLeadingAndTrailingDash(buf []byte) []byte {
+	hasSaveLeadingAndTrailingDashFlag := s.flags&flagSaveLeadingAndTrailingDash != 0
+	sep := s.separator[0]
+
+	for !hasSaveLeadingAndTrailingDashFlag && len(buf) > 0 && buf[0] == sep {
+		buf = buf[1:]
+	}
+	for !hasSaveLeadingAndTrailingDashFlag && len(buf) > 0 && buf[len(buf)-1] == sep {
+		buf = buf[:len(buf)-1]
+	}
+
+	return buf
+}
+
 // trim
 func (s Slugigo) trim(b []byte) []byte {
 	return bytes.TrimSpace(b)
@@ -100,5 +120,7 @@ func (s Slugigo) Build() string {
 	buffer := s.trim(s.text)
 	// 2. Remove Special Symbols
 	buffer = s.process(buffer)
+	// 3. Process leading and trailing dashes
+	buffer = s.removeLeadingAndTrailingDash(buffer)
 	return string(buffer)
 }
