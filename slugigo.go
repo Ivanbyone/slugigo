@@ -1,3 +1,10 @@
+/*
+Copyright (c) 2026 Ivan Boyko.
+
+This source code is licensed under the MIT license found in the
+LICENSE file in the root directory of this source tree.
+*/
+
 package slugigo
 
 import (
@@ -27,7 +34,7 @@ func Slug(text string) Slugigo {
 	return Slugigo{text: b, separator: "-"}
 }
 
-// Lowercase
+// NoLowercase
 func (s Slugigo) NoLowercase() Slugigo {
 	s.flags |= flagNoLowercase
 	return s
