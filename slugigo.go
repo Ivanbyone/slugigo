@@ -29,7 +29,7 @@ func isAllowed(char byte) bool {
 		char == '-' || char == '_' || char == '.'
 }
 
-// isSpace = helper function to check whitespaces, tabulations, etc.
+// isSpace - helper function to check whitespaces, tabulations, etc.
 func isSpace(char byte) bool {
 	return char == ' ' || char == '\t' || char == '\n' || char == '\r'
 }
@@ -80,10 +80,8 @@ func (s Slugigo) Separator(sep string) Slugigo {
 	return s
 }
 
-// process
-//
-// Allowed pattern: `[^a-zA-Z0-9\s\-_.]`
-func (s Slugigo) process(buf []byte) []byte {
+// normalize
+func (s Slugigo) normalize(buf []byte) []byte {
 	w := 0
 	sep := s.separator[0]
 	space := false
@@ -144,11 +142,14 @@ func (s Slugigo) trim(b []byte) []byte {
 
 // Build
 func (s Slugigo) Build() string {
-	// 1. Trim (mandatory operation)
+	// 1. Preprocessing
 	buffer := s.trim(s.text)
-	// 2. Remove Special Symbols
-	buffer = s.process(buffer)
-	// 3. Process leading and trailing dashes
+
+	// 2. Normalization
+	buffer = s.normalize(buffer)
+
+	// 3. Postprocessing
 	buffer = s.removeLeadingAndTrailingDash(buffer)
+
 	return string(buffer)
 }
