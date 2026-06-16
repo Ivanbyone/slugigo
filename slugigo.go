@@ -17,6 +17,28 @@ const (
 	flagSaveLeadingAndTrailingDash
 )
 
+/*
+Helpers
+*/
+
+// isAllowed - helper function to check allowed ASCII symbols.
+//
+// Current allowed pattern: `[^a-zA-Z0-9\s\-_.]`
+func isAllowed(char byte) bool {
+	return (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || (char >= '0' && char <= '9') ||
+		char == '-' || char == '_' || char == '.'
+}
+
+// isSpace = helper function to check whitespaces, tabulations, etc.
+func isSpace(char byte) bool {
+	return char == ' ' || char == '\t' || char == '\n' || char == '\r'
+}
+
+// isUppercase - helper function to check Uppercase ASCII symbols.
+func isUppercase(char byte) bool {
+	return char >= 'A' && char <= 'Z'
+}
+
 // Slugigo
 type Slugigo struct {
 	flags     uint8
@@ -77,7 +99,7 @@ func (s Slugigo) process(buf []byte) []byte {
 			break
 		}
 
-		if char == ' ' || char == '\t' || char == '\n' || char == '\r' {
+		if isSpace(char) {
 			if !space {
 				buf[w] = sep
 				w++
@@ -86,10 +108,9 @@ func (s Slugigo) process(buf []byte) []byte {
 			continue
 		}
 
-		if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') ||
-			(char >= '0' && char <= '9') || char == '-' || char == '_' || char == '.' {
+		if isAllowed(char) {
 
-			if !hasNoLowercaseFlag && char >= 'A' && char <= 'Z' {
+			if !hasNoLowercaseFlag && isUppercase(char) {
 				char += 32
 			}
 

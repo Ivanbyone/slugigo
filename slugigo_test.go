@@ -9,6 +9,80 @@ package slugigo
 
 import "testing"
 
+func TestIsAllowed(t *testing.T) {
+	cases := []struct {
+		provided byte
+		expected bool
+	}{
+		{'a', true},
+		{'o', true},
+		{'z', true},
+		{'0', true},
+		{'5', true},
+		{'9', true},
+		{'.', true},
+		{'-', true},
+		{'_', true},
+		{'A', true},
+		{'Z', true},
+		{'?', false},
+		{'!', false},
+		{',', false},
+	}
+
+	for _, c := range cases {
+		actual := isAllowed(c.provided)
+		if actual != c.expected {
+			t.Errorf("Test failed! Expected: %t, actual: %v", c.expected, actual)
+		}
+	}
+}
+
+func TestIsSpace(t *testing.T) {
+	cases := []struct {
+		provided byte
+		expected bool
+	}{
+		{' ', true},
+		{'\n', true},
+		{'\t', true},
+		{'\r', true},
+		{'a', false},
+		{'.', false},
+		{'_', false},
+	}
+
+	for _, c := range cases {
+		actual := isSpace(c.provided)
+		if actual != c.expected {
+			t.Errorf("Test failed! Expected: %t, actual: %v", c.expected, actual)
+		}
+	}
+}
+
+func TestIsUppercase(t *testing.T) {
+	cases := []struct {
+		provided byte
+		expected bool
+	}{
+		{'A', true},
+		{'O', true},
+		{'Z', true},
+		{'a', false},
+		{'z', false},
+		{'-', false},
+		{'.', false},
+		{'_', false},
+	}
+
+	for _, c := range cases {
+		actual := isUppercase(c.provided)
+		if actual != c.expected {
+			t.Errorf("Test failed! Expected: %t, actual: %v", c.expected, actual)
+		}
+	}
+}
+
 func TestDefaultSlugCreation(t *testing.T) {
 	cases := []struct {
 		provided string
