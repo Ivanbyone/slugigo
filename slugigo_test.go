@@ -170,7 +170,7 @@ func TestRemoveLeadingAndTrailingDashes(t *testing.T) {
 
 	for _, c := range cases {
 		actual := Slug(c.provided).
-			SaveLeadingAndTrailingDash().
+			SaveLeadingAndTrailingSeparator().
 			Build()
 		if actual != c.expected {
 			t.Errorf("Test failed! Expected: %s, actual: %s", c.expected, actual)

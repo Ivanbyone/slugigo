@@ -69,7 +69,7 @@ func (s Slugigo) MaxLength(length int) Slugigo {
 	return s
 }
 
-func (s Slugigo) SaveLeadingAndTrailingDash() Slugigo {
+func (s Slugigo) SaveLeadingAndTrailingSeparator() Slugigo {
 	s.flags |= flagSaveLeadingAndTrailingDash
 	return s
 }
@@ -121,7 +121,7 @@ func (s Slugigo) normalize(buf []byte) []byte {
 	return buf[:w]
 }
 
-func (s Slugigo) removeLeadingAndTrailingDash(buf []byte) []byte {
+func (s Slugigo) removeLeadingAndTrailingSeparator(buf []byte) []byte {
 	hasSaveLeadingAndTrailingDashFlag := s.flags&flagSaveLeadingAndTrailingDash != 0
 	sep := s.separator[0]
 
@@ -149,7 +149,7 @@ func (s Slugigo) Build() string {
 	buffer = s.normalize(buffer)
 
 	// 3. Postprocessing
-	buffer = s.removeLeadingAndTrailingDash(buffer)
+	buffer = s.removeLeadingAndTrailingSeparator(buffer)
 
 	return string(buffer)
 }
