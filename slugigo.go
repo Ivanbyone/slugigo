@@ -39,6 +39,11 @@ func isUppercase(char byte) bool {
 	return char >= 'A' && char <= 'Z'
 }
 
+// trim - delete all around whitespaces
+func trim(b []byte) []byte {
+	return bytes.TrimSpace(b)
+}
+
 // Slugigo
 type Slugigo struct {
 	flags     uint8
@@ -121,6 +126,18 @@ func (s Slugigo) normalize(buf []byte) []byte {
 	return buf[:w]
 }
 
+// preprocessing
+func (s Slugigo) preprocessing(buffer []byte) []byte {
+	buf := trim(buffer)
+	return buf
+}
+
+// postprocessing
+func (s Slugigo) postprocessing(buffer []byte) []byte {
+	buf := s.removeLeadingAndTrailingSeparator(buffer)
+	return buf
+}
+
 func (s Slugigo) removeLeadingAndTrailingSeparator(buf []byte) []byte {
 	hasSaveLeadingAndTrailingDashFlag := s.flags&flagSaveLeadingAndTrailingDash != 0
 	sep := s.separator[0]
@@ -135,21 +152,10 @@ func (s Slugigo) removeLeadingAndTrailingSeparator(buf []byte) []byte {
 	return buf
 }
 
-// trim
-func (s Slugigo) trim(b []byte) []byte {
-	return bytes.TrimSpace(b)
-}
-
 // Build
 func (s Slugigo) Build() string {
-	// 1. Preprocessing
-	buffer := s.trim(s.text)
-
-	// 2. Normalization
+	buffer := s.preprocessing(s.text)
 	buffer = s.normalize(buffer)
-
-	// 3. Postprocessing
-	buffer = s.removeLeadingAndTrailingSeparator(buffer)
-
+	buffer = s.postprocessing(buffer)
 	return string(buffer)
 }
