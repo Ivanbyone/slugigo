@@ -17,6 +17,33 @@ const (
 	flagSaveLeadingAndTrailingDash
 )
 
+/*
+Helpers
+*/
+
+// isAllowed - helper function to check allowed ASCII symbols.
+//
+// Current allowed pattern: `[^a-zA-Z0-9\s\-_.]`
+func isAllowed(char byte) bool {
+	return (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') || (char >= '0' && char <= '9') ||
+		char == '-' || char == '_' || char == '.'
+}
+
+// isSpace - helper function to check whitespaces, tabulations, etc.
+func isSpace(char byte) bool {
+	return char == ' ' || char == '\t' || char == '\n' || char == '\r'
+}
+
+// isUppercase - helper function to check Uppercase ASCII symbols.
+func isUppercase(char byte) bool {
+	return char >= 'A' && char <= 'Z'
+}
+
+// trim - delete all around whitespaces
+func trim(b []byte) []byte {
+	return bytes.TrimSpace(b)
+}
+
 // Slugigo
 type Slugigo struct {
 	flags     uint8
@@ -47,7 +74,7 @@ func (s Slugigo) MaxLength(length int) Slugigo {
 	return s
 }
 
-func (s Slugigo) SaveLeadingAndTrailingDash() Slugigo {
+func (s Slugigo) SaveLeadingAndTrailingSeparator() Slugigo {
 	s.flags |= flagSaveLeadingAndTrailingDash
 	return s
 }
@@ -58,10 +85,8 @@ func (s Slugigo) Separator(sep string) Slugigo {
 	return s
 }
 
-// process
-//
-// Allowed pattern: `[^a-zA-Z0-9\s\-_.]`
-func (s Slugigo) process(buf []byte) []byte {
+// normalize
+func (s Slugigo) normalize(buf []byte) []byte {
 	w := 0
 	sep := s.separator[0]
 	space := false
@@ -77,7 +102,7 @@ func (s Slugigo) process(buf []byte) []byte {
 			break
 		}
 
-		if char == ' ' || char == '\t' || char == '\n' || char == '\r' {
+		if isSpace(char) {
 			if !space {
 				buf[w] = sep
 				w++
@@ -86,10 +111,9 @@ func (s Slugigo) process(buf []byte) []byte {
 			continue
 		}
 
-		if (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z') ||
-			(char >= '0' && char <= '9') || char == '-' || char == '_' || char == '.' {
+		if isAllowed(char) {
 
-			if !hasNoLowercaseFlag && char >= 'A' && char <= 'Z' {
+			if !hasNoLowercaseFlag && isUppercase(char) {
 				char += 32
 			}
 
@@ -102,7 +126,19 @@ func (s Slugigo) process(buf []byte) []byte {
 	return buf[:w]
 }
 
-func (s Slugigo) removeLeadingAndTrailingDash(buf []byte) []byte {
+// preprocessing
+func (s Slugigo) preprocessing(buffer []byte) []byte {
+	buf := trim(buffer)
+	return buf
+}
+
+// postprocessing
+func (s Slugigo) postprocessing(buffer []byte) []byte {
+	buf := s.removeLeadingAndTrailingSeparator(buffer)
+	return buf
+}
+
+func (s Slugigo) removeLeadingAndTrailingSeparator(buf []byte) []byte {
 	hasSaveLeadingAndTrailingDashFlag := s.flags&flagSaveLeadingAndTrailingDash != 0
 	sep := s.separator[0]
 
@@ -116,18 +152,10 @@ func (s Slugigo) removeLeadingAndTrailingDash(buf []byte) []byte {
 	return buf
 }
 
-// trim
-func (s Slugigo) trim(b []byte) []byte {
-	return bytes.TrimSpace(b)
-}
-
 // Build
 func (s Slugigo) Build() string {
-	// 1. Trim (mandatory operation)
-	buffer := s.trim(s.text)
-	// 2. Remove Special Symbols
-	buffer = s.process(buffer)
-	// 3. Process leading and trailing dashes
-	buffer = s.removeLeadingAndTrailingDash(buffer)
+	buffer := s.preprocessing(s.text)
+	buffer = s.normalize(buffer)
+	buffer = s.postprocessing(buffer)
 	return string(buffer)
 }
